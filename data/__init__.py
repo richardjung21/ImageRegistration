@@ -28,3 +28,12 @@ def create_dataset_ACDC(dataset_opt, finesize, phase):
                 split=phase,
                 )
     return dataset
+
+def create_dataset_OAI(dataset_opt, finesize, phase):
+    '''create dataset'''
+    from data.oai import OAI as D
+    dataset = D(root_dir=dataset_opt['dataroot'],
+                split=phase,
+                image_registration=True,
+                data_len=dataset_opt.get('data_len', None))
+    return dataset

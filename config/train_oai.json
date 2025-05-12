@@ -1,0 +1,74 @@
+{
+    "name": "swin_unetR_oai_aug+1.0sim+0.1reg@adamw[1e-4,1e-4]cosine[1e-6]",
+    "phase": "train",
+    "gpu_ids": [
+        0
+    ],
+    "path": {
+        "checkpoint": "checkpoint",
+        "resume_state": null,
+        "tb_logger": "logger"
+    },
+    "datasets": {
+        "centered": true,
+        "train": {
+            "name": "OAI",
+            "dataroot": "../datasets/OAI/database/training",
+            "batch_size": 4,
+            "__epoch_size": 50,
+            "num_workers": 4,
+            "use_shuffle": true
+        },
+        "test": {
+            "name": "OAI",
+            "dataroot": "../datasets/OAI/database/testing",
+            "data_len": 20
+        }
+    },
+    "model": {
+        "netDim": 2,
+        "which_model_G": "ddpm",
+        "finetune_norm": false,
+        "type": "swin_unetR",
+        "swin_unetR": {
+            "img_size": [512, 512],
+            "in_channels": 3,
+            "out_channels": 3,
+            "depths": [2, 2, 2, 2],
+            "num_heads": [3, 6, 12, 24],
+            "window_size": [8, 8],
+            "feature_size": 120,
+            "spatial_dims": 2,
+            "downsample": "merging",
+            "use_v2": false
+        },
+        "beta_schedule": {
+            "train": {
+                "schedule": "linear",
+                "n_timestep": 1000,
+                "linear_start": 1e-6,
+                "linear_end": 1e-2
+            }
+        },
+        "diffusion": {
+            "image_size": [512, 512],
+            "flow_mean": [0.0, 0.0],
+            "flow_std": [1.0, 1.0],
+            "conditional": true
+        }
+    },
+    "train": {
+        "n_epoch": 1000,
+        "val_freq": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+        "save_checkpoint_epoch": [500, 1000],
+        "print_freq": 5,
+        "optimizer": {
+            "type": "adamw",
+            "lr": 1e-4,
+            "weight_decay": 1e-4,
+            "schedule": "cosine",
+            "eta_min": 1e-6
+        },
+        "amp": false
+    }
+} 

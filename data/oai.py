@@ -7,6 +7,7 @@ import torch
 import xml.etree.ElementTree as ET
 import numpy as np
 import random
+import SimpleITK as sitk
 
 class OAI(Dataset):
     def __init__(self, root_dir: str, transform=None, split='train', regression=False, image_registration=True, data_len=None):

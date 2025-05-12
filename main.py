@@ -3,7 +3,7 @@ import numpy as np
 from skimage import registration
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
-from dataset.oai import OAI
+from data.oai import OAI
 import torch
 
 def feature_based_registration(img1, img2):
@@ -113,17 +113,19 @@ def simpleitk_registration(img1, img2):
     # Initialize registration method
     registration_method = sitk.ImageRegistrationMethod()
     
-    # Set similarity metric
-    registration_method.SetMetricAsMeanSquares()
+    # Set similarity metric to mutual information
+    registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
     
-    # Set optimizer
-    registration_method.SetOptimizerAsGradientDescent(learningRate=1.0,
-                                                    numberOfIterations=100)
+    # Set optimizer to LBFGSB
+    registration_method.SetOptimizerAsLBFGSB(gradientConvergenceTolerance=1e-5,
+                                             numberOfIterations=500,
+                                             maximumNumberOfCorrections=5,
+                                             maximumNumberOfFunctionEvaluations=1000,
+                                             costFunctionConvergenceFactor=1e+7)
     
-    # Set initial transform
-    initial_transform = sitk.CenteredTransformInitializer(sitk_img1, sitk_img2,
-                                                        sitk.Euler2DTransform())
-    registration_method.SetInitialTransform(initial_transform)
+    # Set initial transform to translation only
+    initial_transform = sitk.TranslationTransform(sitk_img1.GetDimension())
+    registration_method.SetInitialTransform(initial_transform, inPlace=False)
     
     try:
         # Execute registration
@@ -235,16 +237,16 @@ def main():
     print(f"Successfully loaded image pair with labels: {lbl1} and {lbl2}")
     
     # Perform different registration methods
-    feature_registered = feature_based_registration(img1, img2)
-    intensity_registered = intensity_based_registration(img1, img2)
-    simpleitk_registered = simpleitk_registration(img1, img2)
-    mi_registered = mutual_information_registration(img1, img2)
+    # feature_registered = feature_based_registration(img1, img2)
+    # intensity_registered = intensity_based_registration(img1, img2)
+    # simpleitk_registered = simpleitk_registration(img1, img2)
+    # mi_registered = mutual_information_registration(img1, img2)
     
     # Visualize results
-    visualize_results(img1, img2, feature_registered, "Feature-based")
-    visualize_results(img1, img2, intensity_registered, "Intensity-based")
-    visualize_results(img1, img2, simpleitk_registered, "SimpleITK")
-    visualize_results(img1, img2, mi_registered, "Mutual Information")
+    # visualize_results(img1, img2, feature_registered, "Feature-based")
+    # visualize_results(img1, img2, intensity_registered, "Intensity-based")
+    # visualize_results(img1, img2, simpleitk_registered, "SimpleITK")
+    # visualize_results(img1, img2, mi_registered, "Mutual Information")
 
 if __name__ == "__main__":
     main()
